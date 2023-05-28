@@ -91,20 +91,6 @@ def change_total_ratings(total):
         total = total.replace(',', '')
         return int(total)
     
-def change_box_office(box_office):
-    if pd.isnull(box_office):
-        return box_office
-    else:
-        box_office = str(box_office)
-        if '$' in box_office:
-            box_office = box_office.replace('$', '')
-        if 'M' in box_office:
-            box_office = box_office.replace('M', '')
-        if 'K' in box_office:
-            box_office = box_office.replace('K', '')
-            box_office = float(box_office)/ 1000
-        return int(float(box_office))
-    
 def change_original_language(language, dataset_language):
     if pd.isnull(language):
         return 32
@@ -181,7 +167,7 @@ if __name__ == "__main__":
 
     
 
-    dataset_rotten_tomatoes=dataset_rotten_tomatoes.drop(columns=['title','type','view_the_collection','aspect_ratio','sound_mix','release_date_(theaters)','production_co','consensus','synopsis','crew','link','director','producer','writer','release_date_(streaming)'])
+    dataset_rotten_tomatoes=dataset_rotten_tomatoes.drop(columns=['title','type','box_office_(gross_usa)','view_the_collection','aspect_ratio','sound_mix','release_date_(theaters)','production_co','consensus','synopsis','crew','link','director','producer','writer','release_date_(streaming)'])
     
     #if column runtime is nan then replace it with average
     dataset_rotten_tomatoes['runtime'].fillna(-1, inplace=True)
@@ -191,20 +177,18 @@ if __name__ == "__main__":
     dataset_rotten_tomatoes['genre'] = dataset_rotten_tomatoes['genre'].apply(change_genre, dataset_genre=dataset_genre)
     dataset_rotten_tomatoes['rating'] = dataset_rotten_tomatoes['rating'].apply(change_rating, dataset_rating=dataset_rating)
     dataset_rotten_tomatoes['total_ratings'] = dataset_rotten_tomatoes['total_ratings'].apply(change_total_ratings)
-    dataset_rotten_tomatoes['box_office_(gross_usa)'] = dataset_rotten_tomatoes['box_office_(gross_usa)'].apply(change_box_office)
     # change na 
-    dataset_rotten_tomatoes['box_office_(gross_usa)'].fillna(dataset_rotten_tomatoes['box_office_(gross_usa)'].mean(), inplace=True)
+
     dataset_rotten_tomatoes['people_score'].fillna(dataset_rotten_tomatoes['people_score'].mean(), inplace=True)
     dataset_rotten_tomatoes['original_language'] = dataset_rotten_tomatoes['original_language'].apply(change_original_language, dataset_language=dataset_language)
     #convert column people_score to int
     dataset_rotten_tomatoes['people_score'] = dataset_rotten_tomatoes['people_score'].astype(int)
-    dataset_rotten_tomatoes['box_office_(gross_usa)'] = dataset_rotten_tomatoes['box_office_(gross_usa)'].astype(int)
 
 
     check_data(dataset_rotten_tomatoes)
 
         # Select features and target variable
-    X = dataset_rotten_tomatoes[['year', 'people_score', 'total_reviews', 'total_ratings', 'box_office_(gross_usa)', 'runtime', 'genre', 'rating', 'original_language']]
+    X = dataset_rotten_tomatoes[['year', 'people_score', 'total_reviews', 'total_ratings',  'runtime', 'genre', 'rating', 'original_language']]
     y = dataset_rotten_tomatoes['critic_score']
     # Split the dataset into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
